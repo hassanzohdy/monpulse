@@ -94,4 +94,4 @@ Outputs something similar to:
 
 ## Documentation
 
-To see the full documentation, please visit [monpulse Documentation](https://docs.mentoor.io/mongez/monpulse/getting-started/introduction) 
+To see the full documentation, please visit [monpulse Documentation](https://docs.mentoor.io/mongez/docs/monpulse/getting-started/introduction) 
