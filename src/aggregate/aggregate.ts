@@ -49,6 +49,8 @@ export class Aggregate {
     // get the events instance
     const events = Aggregate._events;
 
+    Aggregate._events.trigger("fetching", this);
+
     events.collection = collection;
   }
 
@@ -641,7 +643,6 @@ export class Aggregate {
    * Get the data
    */
   public async get(mapData?: (data: any) => any): Promise<any[]> {
-    Aggregate._events.trigger("fetching", this);
     const records = await this.execute();
 
     return mapData ? records.map(mapData) : records;
@@ -775,8 +776,6 @@ export class Aggregate {
     this.groupBy(null, {
       total: count(),
     });
-
-    Aggregate._events.trigger("fetching", this);
 
     const results = await this.execute();
 
