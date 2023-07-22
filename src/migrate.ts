@@ -1,7 +1,7 @@
 import { capitalize } from "@mongez/reinforcements";
 import chalk from "chalk";
 import dayjs from "dayjs";
-import { BluePrint } from "./blueprint/blueprint";
+import { Blueprint } from "./blueprint/blueprint";
 import { migrationOffice } from "./model/migration-office";
 import { onceConnected } from "./utils";
 
@@ -16,7 +16,7 @@ export function setMigrationsList(migrations: any[]) {
 }
 
 export function getBlueprintsList() {
-  const blueprints: (typeof BluePrint)[] = [];
+  const blueprints: (typeof Blueprint)[] = [];
 
   for (const migration of currentMigrations) {
     if (!migration.blueprint || blueprints.includes(migration.blueprint))

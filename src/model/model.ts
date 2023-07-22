@@ -302,6 +302,13 @@ export class Model extends RelationshipModel {
   }
 
   /**
+   * Get only id
+   */
+  public get onlyId() {
+    return this.only(["id"]);
+  }
+
+  /**
    * Unset or remove the given columns from the data
    */
   public unset(...columns: (keyof Schema)[]) {

@@ -1,4 +1,4 @@
-import { Database } from "src/mongodb/database";
+import { Database } from "../database";
 import { Model } from "../model";
 import { Blueprint } from "./blueprint";
 
