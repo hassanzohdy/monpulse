@@ -589,6 +589,8 @@ export class Model extends RelationshipModel {
 
       let value = this.get(column);
 
+      if (value === undefined) continue;
+
       const castType = this.casts[column];
 
       const castValue = async (value: any) => {

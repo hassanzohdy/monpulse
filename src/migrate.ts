@@ -1,7 +1,7 @@
 import { capitalize } from "@mongez/reinforcements";
 import chalk from "chalk";
 import dayjs from "dayjs";
-import { BluePrint } from "./blueprint";
+import { BluePrint } from "./blueprint/blueprint";
 import { migrationOffice } from "./model/migration-office";
 import { onceConnected } from "./utils";
 

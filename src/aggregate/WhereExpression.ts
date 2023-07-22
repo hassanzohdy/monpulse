@@ -4,13 +4,17 @@ import { Filter } from "../model";
 import { $agg } from "./expressions";
 import { MongoDBOperator, WhereOperator } from "./types";
 
+function escapeString(value: string) {
+  return String(value).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
 function escapeRegex(value: string | RegExp, escapeOnly = false) {
   if (value instanceof RegExp === false) {
     // escape the value special characters
-    value = String(value).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    value = escapeString(value as string);
 
     if (escapeOnly === false) {
-      value = new RegExp(value, "i");
+      value = new RegExp(value, "gi");
     }
   }
 
@@ -89,9 +93,9 @@ export class WhereExpression {
     }
 
     if (operator === "like") {
-      value = escapeRegex(value);
+      value = new RegExp(escapeRegex(value), "gi");
     } else if (operator === "notLike") {
-      value = escapeRegex(value);
+      value = new RegExp(escapeRegex(value), "gi");
       operator = "not";
       value = {
         $regex: value,

@@ -3,6 +3,7 @@ import { ModelAggregate } from "./ModelAggregate";
 import { ModelSync } from "./ModelSync";
 import { RelationshipWithMany } from "./RelationshipWithMany";
 import { CrudModel } from "./crud-model";
+import { Joinable } from "./joinable";
 import { Model } from "./model";
 import { ChildModel, ModelDocument } from "./types";
 
@@ -183,5 +184,35 @@ export abstract class RelationshipModel extends CrudModel {
 
       return syncModel;
     });
+  }
+
+  /**
+   * Get a Joinable instance for current model
+   */
+  public static joinable(
+    localField?: string,
+    foreignField?: string,
+    single?: boolean,
+    as?: string,
+  ) {
+    const joinable = new Joinable(this as any);
+
+    if (localField) {
+      joinable.localField(localField);
+    }
+
+    if (foreignField) {
+      joinable.foreignField(foreignField);
+    }
+
+    if (single) {
+      joinable.single(single);
+    }
+
+    if (as) {
+      joinable.as(as);
+    }
+
+    return joinable;
   }
 }

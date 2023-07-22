@@ -1,6 +1,6 @@
 import Is from "@mongez/supportive-is";
 import { Command } from "commander";
-import { BluePrint } from "./../blueprint";
+import { BluePrint } from "../blueprint/blueprint";
 import { setMigrationsList } from "./../migrate";
 import { connectToDatabase } from "./../utils";
 

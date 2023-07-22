@@ -1,5 +1,5 @@
 import { Random } from "@mongez/reinforcements";
-import { bluePrint } from "../blueprint";
+import { modelBlueprint } from "../blueprint";
 import { database, Database } from "../database";
 import { query } from "../query";
 import { masterMind } from "./master-mind";
@@ -205,6 +205,6 @@ export abstract class BaseModel {
    * Get model blueprint
    */
   public static blueprint() {
-    return bluePrint(this as any);
+    return modelBlueprint(this as any);
   }
 }

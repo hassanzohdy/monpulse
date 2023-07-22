@@ -1,6 +1,6 @@
-import { toStudlyCase } from "@mongez/reinforcements";
-import { Aggregate } from "../aggregate";
-import { selectPipeline } from "../aggregate/SelectPipeline";
+import { GenericObject, toStudlyCase } from "@mongez/reinforcements";
+import { $agg, Aggregate, Pipeline, selectPipeline } from "../aggregate";
+import { Joinable } from "./joinable";
 import { Filter, PaginationListing } from "./types";
 
 export class ModelAggregate<T> extends Aggregate {
@@ -56,6 +56,73 @@ export class ModelAggregate<T> extends Aggregate {
     });
 
     return records.length;
+  }
+
+  /**
+   * Perform a join
+   */
+  public joining(
+    joining: string | Joinable,
+    options?: {
+      where?: GenericObject;
+      select?: string[];
+      pipeline: (GenericObject | Pipeline)[];
+      as?: string;
+    },
+  ) {
+    joining = this.getJoinable(joining);
+
+    if (options?.where) {
+      joining.where(options.where);
+    }
+
+    if (options?.select) {
+      joining.select(...options.select);
+    }
+
+    if (options?.as) {
+      joining.as(options.as);
+    }
+
+    if (options?.pipeline) {
+      joining.addPipelines(options.pipeline);
+    }
+
+    return this.lookup(joining.parse());
+  }
+
+  /**
+   * Get joinable instance for current model
+   */
+  protected getJoinable(joinable: string | Joinable) {
+    if (typeof joinable === "string") {
+      joinable = this.model.joinings[joinable] as Joinable;
+    }
+
+    return joinable.clone();
+  }
+
+  /**
+   * Perform a join and count the records of the joined collection
+   */
+  public countJoining(
+    joining: string | Joinable,
+    options?: {
+      where?: GenericObject;
+      select?: string[];
+      pipeline: (GenericObject | Pipeline)[];
+      as?: string;
+    },
+  ) {
+    joining = this.getJoinable(joining);
+
+    const as = joining.get("as");
+
+    const returnAs = options?.as || as + "Count";
+
+    return this.joining(joining, options).addField(returnAs, {
+      $size: $agg.columnName(as),
+    });
   }
 
   /**

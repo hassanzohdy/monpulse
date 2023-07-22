@@ -566,14 +566,30 @@ export class Aggregate {
 
     if (options.single && options.as) {
       const as = options.as;
-      this.addPipeline({
-        $addFields: {
-          [as]: last(as),
-        },
-      });
+      this.addField(as, last(as));
     }
 
     return this;
+  }
+
+  /**
+   * Add field to the pipeline
+   */
+  public addField(field: string, value: any) {
+    return this.addPipeline({
+      $addFields: {
+        [field]: value,
+      },
+    });
+  }
+
+  /**
+   * Add fields to the pipeline
+   */
+  public addFields(fields: GenericObject) {
+    return this.addPipeline({
+      $addFields: fields,
+    });
   }
 
   /**
