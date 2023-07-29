@@ -381,7 +381,7 @@ export class Model extends RelationshipModel {
           return this;
         }
 
-        currentModel = this.clone();
+        currentModel = new (this.constructor as any)(this.originalData);
 
         mode = "update";
 
@@ -613,6 +613,10 @@ export class Model extends RelationshipModel {
         return value;
       };
 
+      // if the cast type is passed in array
+      // it means we just need to pass the value to the first function
+      // second argument will be the column name
+      // and the third argument will be the model instance
       if (Array.isArray(castType)) {
         value = await castType[0](value, column, this);
       } else if (Array.isArray(value) && castType !== "localized") {
