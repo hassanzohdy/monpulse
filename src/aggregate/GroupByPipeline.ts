@@ -18,7 +18,7 @@ export class GroupByPipeline extends Pipeline {
 
     if (Array.isArray(_id)) {
       _id = (_id as string[]).reduce((result, column) => {
-        result[column] = $agg.columnName(column);
+        result[column.split(".")[0]] = $agg.columnName(column);
 
         return result;
       }, {} as any);
