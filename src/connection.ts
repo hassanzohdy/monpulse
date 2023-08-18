@@ -10,7 +10,7 @@ export class Connection {
   /**
    * Mongo Client
    */
-  public client?: MongoClient;
+  public client!: MongoClient;
 
   /**
    * Database instance

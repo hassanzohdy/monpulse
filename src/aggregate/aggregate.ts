@@ -284,31 +284,45 @@ export class Aggregate {
   /**
    * Get distinct value for the given column using aggregation
    */
-  public async distinct(column: string) {
-    return (await this.groupBy(column).get(record => record._id)).filter(
-      value => value !== null,
-    );
+  public async distinct<T = any>(column: string) {
+    return (await this.groupBy(null, {
+      // use addToSet to get unique values
+      [column]: $agg.addToSet(column),
+    })
+      .select([column])
+      .get(data => data[column])) as T[];
   }
 
   /**
    * {@alias} distinct
    */
-  public unique(column: string) {
-    return this.distinct(column);
+  public unique<T = any>(column: string) {
+    return this.distinct<T>(column);
   }
 
   /**
    * Get distinct values that are not empty
    */
-  public async distinctHeavy(column: string) {
-    return await this.whereNotNull(column).distinct(column);
+  public async distinctHeavy<T = any>(column: string) {
+    return await this.whereNotNull(column).distinct<T>(column);
   }
 
   /**
    * {@alias} distinctHeavy
    */
-  public async uniqueHeavy(column: string) {
-    return await this.distinctHeavy(column);
+  public async uniqueHeavy<T = any>(column: string) {
+    return await this.distinctHeavy<T>(column);
+  }
+
+  /**
+   * Get values list of the given column
+   */
+  public async values<T = any>(column: string) {
+    return (await this.groupBy(null, {
+      values: $agg.push(column),
+    })
+      .select(["values"])
+      .get(data => data.values)) as T;
   }
 
   /**

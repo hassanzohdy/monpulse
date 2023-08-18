@@ -1,3 +1,4 @@
+import { ClientSession } from "mongodb";
 import { database, Database } from "../database";
 
 export class MasterMind {
@@ -25,18 +26,31 @@ export class MasterMind {
   }
 
   /**
+   * Get current active session from database object
+   */
+  public getCurrentSession() {
+    return this.database.getActiveSession()?.session;
+  }
+
+  /**
    * Generate next id for the given collection name
    */
   public async generateNextId(
     collection: string,
     incrementIdBy = 1,
     initialId = 1,
+    { session = this.getCurrentSession() }: { session?: ClientSession } = {},
   ): Promise<number> {
     const query = this.database.collection(this.collection);
 
-    const collectionDocument = await query.findOne({
-      collection: collection,
-    });
+    const collectionDocument = await query.findOne(
+      {
+        collection: collection,
+      },
+      {
+        session,
+      },
+    );
 
     if (collectionDocument) {
       const nextId = collectionDocument.id + incrementIdBy;
@@ -51,16 +65,24 @@ export class MasterMind {
             id: nextId,
           },
         },
+        {
+          // session,
+        },
       );
 
       return nextId;
     } else {
       // if the collection is not found in the master mind table
       // create a new record for it
-      await query.insertOne({
-        collection: collection,
-        id: initialId,
-      });
+      await query.insertOne(
+        {
+          collection: collection,
+          id: initialId,
+        },
+        {
+          session,
+        },
+      );
 
       return initialId;
     }

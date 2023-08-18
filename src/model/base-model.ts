@@ -87,7 +87,7 @@ export abstract class BaseModel {
     if (this.incrementIdBy) return this.incrementIdBy;
 
     // return Random number
-    return Random.int(1000, 9999);
+    return Random.int(1, 999);
   }
 
   /**
