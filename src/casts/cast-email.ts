@@ -1,6 +1,6 @@
-import Is from "@mongez/supportive-is";
+import { isEmail } from "@mongez/supportive-is";
 
 export function castEmail(value: string) {
-  if (!Is.email(value)) return null;
+  if (!isEmail(value)) return null;
   return String(value).toLowerCase();
 }

@@ -1,17 +1,17 @@
 {
     "name": "@mongez/monpulse",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Powerful Mongodb Database Manager for Node Js",
     "main": "src/index.ts",
     "dependencies": {
         "@mongez/events": "^2.1.0",
-        "@mongez/logger": "^1.0.9",
-        "@mongez/reinforcements": "^2.3.7",
-        "@mongez/supportive-is": "^1.0.12",
+        "@mongez/logger": "^1.0.10",
+        "@mongez/reinforcements": "^2.3.8",
+        "@mongez/supportive-is": "^2.0.0",
         "@mongez/time-wizard": "^1.0.6",
         "dayjs": "^1.11.9",
         "pluralize": "^8.0.0",
-        "mongodb": "^5.7.0"
+        "mongodb": "^6.0.0"
     },
     "scripts": {
         "update": "npx ncu -u -x chalk",

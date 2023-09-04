@@ -1,4 +1,4 @@
-import Is from "@mongez/supportive-is";
+import { isPlainObject } from "@mongez/supportive-is";
 import { Command } from "commander";
 import { Blueprint } from "../blueprint/blueprint";
 import { setMigrationsList } from "./../migrate";
@@ -14,9 +14,9 @@ export function parseBlueprint(data: any) {
 
     if (columnType.prototype instanceof Blueprint) {
       columnType = parseBlueprint(columnType.schema);
-    } else if (Is.plainObject(columnType)) {
+    } else if (isPlainObject(columnType)) {
       columnType = parseBlueprint(columnType);
-    } else if (typeof columnType !== "string" && !Is.plainObject(columnType)) {
+    } else if (typeof columnType !== "string" && !isPlainObject(columnType)) {
       columnType = columnType.name;
     }
 

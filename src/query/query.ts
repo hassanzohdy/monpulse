@@ -384,6 +384,35 @@ export class Query {
   }
 
   /**
+   * Check if document exists for the given collection with the given filter
+   */
+  public async exists(
+    collection: string,
+    filter: Filter = {},
+    { session = this.getCurrentSession() }: { session?: ClientSession } = {},
+  ) {
+    const query = this.query(collection);
+
+    await this.trigger("counting", {
+      collection,
+      filter,
+      query,
+    });
+
+    const output = await query.countDocuments(filter, {
+      session,
+    });
+
+    await this.trigger("counted", {
+      collection,
+      filter,
+      output,
+    });
+
+    return output > 0;
+  }
+
+  /**
    * Find a single document for the given collection with the given filter
    */
   public async first<T = Document>(

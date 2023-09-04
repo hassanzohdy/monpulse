@@ -1,4 +1,4 @@
-import Is from "@mongez/supportive-is";
+import { isPlainObject } from "@mongez/supportive-is";
 import { toUTC } from "@mongez/time-wizard";
 import { Filter } from "../model";
 import { $agg } from "./expressions";
@@ -79,7 +79,7 @@ export class WhereExpression {
     value: any,
   ): Filter;
   public static parse(...args: any[]) {
-    if (args.length === 1 && Is.plainObject(args[0]))
+    if (args.length === 1 && isPlainObject(args[0]))
       return parseValuesInObject(args[0]);
 
     const column: string = args[0];

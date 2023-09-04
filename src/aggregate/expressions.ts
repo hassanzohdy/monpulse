@@ -1,5 +1,5 @@
 import { GenericObject, ltrim } from "@mongez/reinforcements";
-import Is from "@mongez/supportive-is";
+import { isScalar } from "@mongez/supportive-is";
 
 /**
  * Get count expression
@@ -359,7 +359,7 @@ export function like(value: any, column?: string) {
  * Get not like expression
  */
 export function notLike(value: any, column?: string) {
-  if (Is.scalar(value)) {
+  if (isScalar(value)) {
     value = new RegExp(value, "i");
   }
 

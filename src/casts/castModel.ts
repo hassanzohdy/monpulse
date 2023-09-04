@@ -1,4 +1,4 @@
-import Is from "@mongez/supportive-is";
+import { isEmpty } from "@mongez/supportive-is";
 import { Model } from "../model";
 
 export function castModel(
@@ -30,7 +30,7 @@ export function castModel(
         .map(record => {
           return getModelData(record, embeddedKey);
         })
-        .filter(value => !Is.empty(value));
+        .filter(value => !isEmpty(value));
 
       // now we need to order documents same as the value
       const orderedDocuments: any[] = [];

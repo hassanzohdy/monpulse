@@ -434,6 +434,16 @@ export abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Check if document exists for the given filter
+   */
+  public static async exists<T>(this: ChildModel<T>, filter: Filter = {}) {
+    return await this.query.exists(
+      this.collection,
+      this.prepareFilters(filter),
+    );
+  }
+
+  /**
    * Get distinct values for the given column
    */
   public static async distinct<T>(
