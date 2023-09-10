@@ -276,6 +276,13 @@ export class Blueprint {
   }
 
   /**
+   * Rename collection to the given name
+   */
+  public async rename(newName: string) {
+    return await this.collection().rename(newName);
+  }
+
+  /**
    * Get base schema
    */
   public get baseSchema() {
