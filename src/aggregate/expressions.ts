@@ -343,7 +343,7 @@ export function notExists(value: any, column?: string) {
  * Get like expression
  */
 export function like(value: any, column?: string) {
-  if (Is.scalar(value)) {
+  if (isScalar(value)) {
     value = new RegExp(value, "i");
   }
 

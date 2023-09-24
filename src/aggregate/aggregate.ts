@@ -684,12 +684,13 @@ export class Aggregate {
   public async paginate<T = any>(
     page = 1,
     limit = 15,
+    mapData?: (data: any) => T,
   ): Promise<PaginationListing<T>> {
     const totalDocumentsQuery = this.parse();
 
     this.skip((page - 1) * limit).limit(limit);
 
-    const records = await this.get();
+    const records = await this.get(mapData);
 
     this.pipelines = totalDocumentsQuery;
 

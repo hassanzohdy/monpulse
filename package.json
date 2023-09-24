@@ -1,6 +1,6 @@
 {
     "name": "@mongez/monpulse",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "description": "Powerful Mongodb Database Manager for Node Js",
     "main": "src/index.ts",
     "dependencies": {
@@ -10,6 +10,7 @@
         "@mongez/supportive-is": "^2.0.0",
         "@mongez/time-wizard": "^1.0.6",
         "dayjs": "^1.11.9",
+        "console-table-printer": "^2.11.2",
         "pluralize": "^8.0.0",
         "mongodb": "^5.7.0"
     },
@@ -27,7 +28,6 @@
     },
     "devDependencies": {
         "@types/jest": "^29.5.3",
-        "console-table-printer": "^2.11.2",
         "commander": "^11.0.0",
         "chalk": "^4",
         "eslint": "^8.46.0",
