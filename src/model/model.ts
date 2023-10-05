@@ -524,7 +524,9 @@ export class Model extends RelationshipModel {
       // @see constructor
       this.originalData._id = this.data._id;
 
-      this.startSyncing(mode, currentModel);
+      if (triggerEvents) {
+        this.startSyncing(mode, currentModel);
+      }
 
       return this;
     } catch (error) {
