@@ -1,6 +1,6 @@
 {
     "name": "@mongez/monpulse",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "description": "Powerful Mongodb Database Manager for Node Js",
     "main": "src/index.ts",
     "dependencies": {

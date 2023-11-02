@@ -303,6 +303,13 @@ export class Blueprint {
       ...schema,
     };
   }
+
+  /**
+   * Dump the entire collection
+   */
+  public async dump() {
+    return await this.collection().find({}).toArray();
+  }
 }
 
 /**

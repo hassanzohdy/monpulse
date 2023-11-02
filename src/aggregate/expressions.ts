@@ -344,7 +344,7 @@ export function notExists(value: any, column?: string) {
  */
 export function like(value: any, column?: string) {
   if (isScalar(value)) {
-    value = new RegExp(value, "i");
+    value = new RegExp(value, "gi");
   }
 
   return wrapExpressionWithColumn(
@@ -360,7 +360,7 @@ export function like(value: any, column?: string) {
  */
 export function notLike(value: any, column?: string) {
   if (isScalar(value)) {
-    value = new RegExp(value, "i");
+    value = new RegExp(value, "gi");
   }
 
   return wrapExpressionWithColumn(

@@ -162,7 +162,6 @@ export class WhereExpression {
         },
       };
     }
-
     // now add the data
     return {
       [column]: expression,
