@@ -1,6 +1,6 @@
 {
     "name": "@mongez/monpulse",
-    "version": "1.0.13",
+    "version": "1.0.14",
     "description": "Powerful Mongodb Database Manager for Node Js",
     "main": "src/index.ts",
     "dependencies": {
@@ -12,10 +12,11 @@
         "dayjs": "^1.11.9",
         "console-table-printer": "^2.11.2",
         "pluralize": "^8.0.0",
+        "@mongez/copper": "^1.0.1",
         "mongodb": "^5.7.0"
     },
     "scripts": {
-        "update": "npx ncu -u -x chalk",
+        "update": "npx ncu -u",
         "fix:test": "eslint --fix -c ./.eslintrc.json ./tests",
         "format:test": "prettier --write ./tests/**/*.{js,jsx,ts,tsx,css,md,json} --config ./.prettierrc.json",
         "fix": "eslint --fix -c ./.eslintrc.json ./src",
@@ -29,7 +30,6 @@
     "devDependencies": {
         "@types/jest": "^29.5.3",
         "commander": "^11.0.0",
-        "chalk": "^4",
         "eslint": "^8.46.0",
         "eslint-config-prettier": "^8.9.0",
         "eslint-plugin-prettier": "^5.0.0",

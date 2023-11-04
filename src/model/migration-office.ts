@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import { colors} from "@mongez/copper";
 import { Query, query } from "../query";
 import { Model } from "./model";
 
@@ -44,18 +44,18 @@ export class MigrationOffice {
    */
   public async drop() {
     console.log(
-      chalk.blue("→"),
-      chalk.cyan("[migration]"),
-      chalk.redBright("Dropping"),
+      colors.blue("→"),
+      colors.cyan("[migration]"),
+      colors.redBright("Dropping"),
       "all migrations",
     );
 
     await this.query.delete(this.collection);
 
     console.log(
-      chalk.green("✓"),
-      chalk.cyan("[migration]"),
-      "All migrations has been " + chalk.greenBright("dropped successfully."),
+      colors.green("✓"),
+      colors.cyan("[migration]"),
+      "All migrations has been " + colors.greenBright("dropped successfully."),
     );
   }
 

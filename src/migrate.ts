@@ -1,5 +1,5 @@
+import { colors } from "@mongez/copper";
 import { capitalize } from "@mongez/reinforcements";
-import chalk from "chalk";
 import dayjs from "dayjs";
 import { Blueprint } from "./blueprint/blueprint";
 import { migrationOffice } from "./model/migration-office";
@@ -31,9 +31,9 @@ export function getBlueprintsList() {
 export function listMigrations() {
   onceConnected(async () => {
     console.log(
-      chalk.blue("→"),
-      chalk.cyan("[migration]"),
-      chalk.yellow('"Listing all migrations"'),
+      colors.blue("→"),
+      colors.cyan("[migration]"),
+      colors.yellow('"Listing all migrations"'),
     );
 
     const migrations = await migrationOffice.list();
@@ -41,8 +41,8 @@ export function listMigrations() {
     if (!migrations.length) {
       console.log(
         // exclamation mark
-        chalk.yellow("⚠"),
-        chalk.cyan("[migration]"),
+        colors.yellow("⚠"),
+        colors.cyan("[migration]"),
         "No migrations found",
       );
     }
@@ -50,12 +50,12 @@ export function listMigrations() {
     for (const migration of migrations) {
       console.log(
         // add green check mark
-        chalk.green("✓"),
-        chalk.cyan("[migration]"),
-        chalk.magentaBright(
+        colors.green("✓"),
+        colors.cyan("[migration]"),
+        colors.magentaBright(
           dayjs(migration.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         ),
-        chalk.greenBright(migration.name),
+        colors.greenBright(migration.name),
       );
     }
 
@@ -86,11 +86,11 @@ export async function dropMigrations() {
     const migrationName = getMigrationName(migration.name);
 
     console.log(
-      chalk.blue("→"),
-      chalk.cyan("[migration]"),
-      chalk.gray("[dropping]"),
-      chalk.red("Dropping"),
-      chalk.yellowBright(`${migrationName} migration`),
+      colors.blue("→"),
+      colors.cyan("[migration]"),
+      colors.gray("[dropping]"),
+      colors.red("Dropping"),
+      colors.yellowBright(`${migrationName} migration`),
     );
     try {
       await migrationOffice.dropMigration(migrationName);
@@ -98,19 +98,19 @@ export async function dropMigrations() {
       await migration.down();
 
       console.log(
-        chalk.green("✓"),
-        chalk.cyan("[migration]"),
-        chalk.gray("[dropped]"),
-        chalk.redBright("Dropped"),
-        chalk.greenBright(`${migrationName} migration`),
+        colors.green("✓"),
+        colors.cyan("[migration]"),
+        colors.gray("[dropped]"),
+        colors.redBright("Dropped"),
+        colors.greenBright(`${migrationName} migration`),
       );
     } catch (error: any) {
       console.log(
-        chalk.red("✗"),
-        chalk.cyan("[migration]"),
-        chalk.gray("[dropFailed]"),
-        chalk.redBright("Failed to drop"),
-        chalk.greenBright(`${migrationName} migration`),
+        colors.red("✗"),
+        colors.cyan("[migration]"),
+        colors.gray("[dropFailed]"),
+        colors.redBright("Failed to drop"),
+        colors.greenBright(`${migrationName} migration`),
       );
 
       console.log(error.message);
@@ -128,10 +128,10 @@ export async function startMigrating(fresh = false) {
 
     console.log(
       // add blue arrow mark
-      chalk.blue("→"),
-      chalk.cyan("[migration]"),
-      chalk.gray("[migrating]"),
-      "Creating " + chalk.yellowBright(`${migrationName} migration`),
+      colors.blue("→"),
+      colors.cyan("[migration]"),
+      colors.gray("[migrating]"),
+      "Creating " + colors.yellowBright(`${migrationName} migration`),
     );
 
     try {
@@ -140,10 +140,10 @@ export async function startMigrating(fresh = false) {
       if (isMigrated) {
         console.log(
           // add red x mark
-          chalk.red("✗"),
-          chalk.cyan("[migration]"),
-          chalk.gray("[skipped]"),
-          `${chalk.redBright(
+          colors.red("✗"),
+          colors.cyan("[migration]"),
+          colors.gray("[skipped]"),
+          `${colors.redBright(
             migrationName + " Migration",
           )} has been done before.`,
         );
@@ -155,10 +155,10 @@ export async function startMigrating(fresh = false) {
       await migrationOffice.migrate(migrationName);
       console.log(
         // add green check mark
-        chalk.green("✓"),
-        chalk.cyan("[migration]"),
-        chalk.gray("[migrated]"),
-        `${chalk.greenBright(
+        colors.green("✓"),
+        colors.cyan("[migration]"),
+        colors.gray("[migrated]"),
+        `${colors.greenBright(
           migrationName + " Migration",
         )} has been migrated successfully.`,
       );

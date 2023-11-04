@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import { colors } from "@mongez/copper";
 import { Table } from "console-table-printer";
 import { database } from "../database";
 import { onceConnected } from "./onceConnected";
@@ -54,9 +54,9 @@ export async function printCollectionIndexes(collection: string) {
 
   const table = new Table({
     title:
-      chalk.cyanBright(collection) +
+      colors.cyanBright(collection) +
       " Collection " +
-      `${chalk.greenBright(indexes.length)} Indexes`,
+      `${colors.greenBright(indexes.length)} Indexes`,
     columns: [
       {
         name: "Normal Indexes",
@@ -90,7 +90,7 @@ export async function printCollectionIndexes(collection: string) {
       indexesTypes.unique.push(index.name);
       isNormalIndex = false;
       table.addRow({
-        "Unique Indexes": chalk.greenBright(index.name),
+        "Unique Indexes": colors.greenBright(index.name),
       });
     }
 
@@ -98,7 +98,7 @@ export async function printCollectionIndexes(collection: string) {
       indexesTypes.geo.push(index.name);
       isNormalIndex = false;
       table.addRow({
-        "Geo Indexes": chalk.magentaBright(index.name),
+        "Geo Indexes": colors.magentaBright(index.name),
       });
     }
 
@@ -107,7 +107,7 @@ export async function printCollectionIndexes(collection: string) {
       indexesTypes.text.push(index.name);
       isNormalIndex = false;
       table.addRow({
-        "Text Indexes": chalk.yellow(index.name),
+        "Text Indexes": colors.yellow(index.name),
       });
     }
 
