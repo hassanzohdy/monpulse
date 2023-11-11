@@ -1,3 +1,4 @@
+import { GenericObject } from "@mongez/reinforcements";
 import { Model } from "./model";
 import { Filter, ModelDocument } from "./types";
 
@@ -16,7 +17,11 @@ export class RelationshipWithMany<T> {
   /**
    * Add the given model to the relationship
    */
-  public async add(model: Model) {
+  public async add(model: Model | GenericObject) {
+    if (model instanceof Model === false) {
+      model = new this.relatedModel(model);
+    }
+
     await model.save();
 
     await this.model.associate(this.column, model).save();

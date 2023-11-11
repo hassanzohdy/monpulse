@@ -1,4 +1,4 @@
-import { colors} from "@mongez/copper";
+import { colors } from "@mongez/copper";
 import { Query, query } from "../query";
 import { Model } from "./model";
 
