@@ -1,7 +1,7 @@
 import { log } from "@mongez/logger";
 import { GenericObject, get } from "@mongez/reinforcements";
 import { ObjectId } from "mongodb";
-import { Filter, PaginationListing } from "../model";
+import { ChunkCallback, Filter, PaginationListing } from "../model";
 import { ModelEvents } from "../model/model-events";
 import { query } from "../query";
 import { DeselectPipeline } from "./DeselectPipeline";
@@ -679,6 +679,29 @@ export class Aggregate {
   }
 
   /**
+   * Chunk documents based on the given limit
+   */
+  public async chunk<T = any>(
+    limit: number,
+    callback: ChunkCallback<T>,
+    mapData?: (data: any) => any,
+  ) {
+    const totalDocuments = await this.clone().count();
+
+    const totalPages = Math.ceil(totalDocuments / limit);
+
+    for (let page = 1; page <= totalPages; page++) {
+      const results = await this.clone().paginate(page, limit, mapData);
+
+      const { documents, paginationInfo } = results;
+
+      const output = await callback(documents, paginationInfo);
+
+      if (output === false) break;
+    }
+  }
+
+  /**
    * Paginate records based on the given filter
    */
   public async paginate<T = any>(
@@ -827,5 +850,16 @@ export class Aggregate {
     this.pipelines = [];
 
     return this;
+  }
+
+  /**
+   * Clone the aggregate class
+   */
+  public clone() {
+    const aggregate = new (this.constructor as any)(this.collection);
+
+    aggregate.pipelines = this.pipelines.slice();
+
+    return aggregate as this;
   }
 }

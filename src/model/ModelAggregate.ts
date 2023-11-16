@@ -1,7 +1,7 @@
 import { GenericObject, toStudlyCase } from "@mongez/reinforcements";
 import { $agg, Aggregate, Pipeline, selectPipeline } from "../aggregate";
 import { Joinable } from "./joinable";
-import { Filter, PaginationListing } from "./types";
+import { ChunkCallback, Filter, PaginationListing } from "./types";
 
 export class ModelAggregate<T> extends Aggregate {
   /**
@@ -19,6 +19,17 @@ export class ModelAggregate<T> extends Aggregate {
     mapData: (record: any) => any = record => new this.model(record),
   ) {
     return (await super.get(mapData)) as Output[];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public async chunk<Output = T>(
+    limit: number,
+    callback: ChunkCallback<Output>,
+    mapData?: (data: any) => any,
+  ) {
+    return super.chunk(limit, callback, mapData);
   }
 
   /**
@@ -163,5 +174,16 @@ export class ModelAggregate<T> extends Aggregate {
     });
 
     return this;
+  }
+
+  /**
+   * Clone the aggregate model class
+   */
+  public clone() {
+    const aggregate = new ModelAggregate(this.model);
+
+    aggregate.pipelines = this.pipelines.slice();
+
+    return aggregate as this;
   }
 }

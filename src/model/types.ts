@@ -120,3 +120,8 @@ export type CastType =
 export type Casts = {
   [column: string]: CastType;
 };
+
+export type ChunkCallback<T> = (
+  documents: T[],
+  paginationInfo: PaginationListing<T>["paginationInfo"],
+) => false | any | Promise<false | any>;

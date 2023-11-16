@@ -492,7 +492,6 @@ export class Model extends RelationshipModel {
               this.getCollection(),
               this.data,
             )) as Schema;
-            // });
 
             if (triggerEvents) {
               const selfModelEvents = this.getModelEvents();
@@ -673,7 +672,21 @@ export class Model extends RelationshipModel {
       } else if (Array.isArray(value) && castType !== "localized") {
         // if cast type is array, then we'll keep the value as it is
 
-        if (castType !== "array") {
+        // now we want to add a new validation rule that to check
+        // if the value is an array of localized objects
+        // if so, then each value in the array should have `localeCode` and `value` keys
+        // if so, then it will be cast only to the value key inside each object
+        // so the final output will be localeCode and `castValue` of the value key
+        if (value[0]?.localeCode && value[0]?.value) {
+          value = await Promise.all(
+            value.map(async item => {
+              return {
+                localeCode: item.localeCode,
+                value: await castValue(item.value),
+              };
+            }),
+          );
+        } else {
           value = await Promise.all(
             value.map(async item => {
               return await castValue(item);

@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { BaseModel } from "./base-model";
 import {
   ChildModel,
+  ChunkCallback,
   Document,
   Filter,
   ModelDeleteStrategy,
@@ -431,6 +432,51 @@ export abstract class CrudModel extends BaseModel {
     }
 
     return await this.query.delete(this.collection, filter);
+  }
+
+  /**
+   * Chunk the documents
+   */
+  public static async chunk<T>(
+    this: ChildModel<T>,
+    limit: number,
+    callback: ChunkCallback<T>,
+  ): Promise<void>;
+  public static async chunk<T>(
+    this: ChildModel<T>,
+    filter: Filter & {
+      limit: number;
+    },
+    callback: ChunkCallback<T>,
+  ): Promise<void>;
+  public static async chunk<T>(
+    this: ChildModel<T>,
+    limitOrFilter: any,
+    callback: ChunkCallback<T>,
+  ) {
+    let limit = limitOrFilter;
+    let filter = {};
+
+    if (typeof limitOrFilter === "object") {
+      limit = limitOrFilter.limit;
+      delete limitOrFilter.limit;
+      filter = limitOrFilter;
+    }
+
+    const totalDocumentsOfFilter = await this.query.count(
+      this.collection,
+      filter,
+    );
+
+    const totalPages = Math.ceil(totalDocumentsOfFilter / limit);
+
+    for (let page = 1; page <= totalPages; page++) {
+      const result = await this.paginate(filter, page, limit);
+
+      const output = await callback(result.documents, result.paginationInfo);
+
+      if (output === false) return;
+    }
   }
 
   /**
