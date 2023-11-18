@@ -8,7 +8,7 @@ import {
   set,
 } from "@mongez/reinforcements";
 import { isEmpty, isPlainObject } from "@mongez/supportive-is";
-import { fromUTC, now, toUTC } from "@mongez/time-wizard";
+import { fromUTC, toUTC } from "@mongez/time-wizard";
 import dayjs from "dayjs";
 import { MongoServerError, ObjectId } from "mongodb";
 import { RelationshipModel } from "./relationships";
@@ -756,26 +756,7 @@ export class Model extends RelationshipModel {
           return toUTC(value.toDate());
         }
 
-        if (typeof value === "string") {
-          const isZuluTime = (value: string) => {
-            // use regex to check if the string is in zulu time format
-            return value.match(
-              /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d+)Z$/,
-            );
-          };
-
-          if (isZuluTime(value)) {
-            return toUTC(new Date(value));
-          }
-          return toUTC(dayjs(value, this.dateFormat).toDate());
-        }
-
-        // timestamp
-        if (typeof value === "number") {
-          return toUTC(new Date(value));
-        }
-
-        return now();
+        return toUTC(new Date(value));
       }
       case "location": {
         if (isEmptyValue) return null;
