@@ -60,7 +60,7 @@ export class ModelAggregate<T> extends Aggregate {
    * Delete records
    */
   public async delete() {
-    const records = await this.select(["id", "_id"]).get();
+    const records = await this.get();
 
     records.forEach(async (model: any) => {
       await model.destroy();

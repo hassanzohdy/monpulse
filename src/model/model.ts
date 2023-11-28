@@ -199,12 +199,11 @@ export class Model extends RelationshipModel {
     }
 
     const newData: Partial<Schema> = { ...data };
-
     dates.forEach(dateColumn => {
       const date: Date | undefined = get(newData, dateColumn);
 
       if (date) {
-        set(newData, dateColumn, fromUTC(date));
+        set(newData, dateColumn, fromUTC(new Date(date)));
       }
     });
 
@@ -437,7 +436,7 @@ export class Model extends RelationshipModel {
           this.onUpdated();
           selfModelEvents.trigger("updated", this, currentModel);
           selfModelEvents.trigger("saved", this, currentModel);
-          ModelEvents.trigger("updated", this), currentModel;
+          ModelEvents.trigger("updated", this, currentModel);
           ModelEvents.trigger("saved", this, currentModel);
         }
       } else {
@@ -828,7 +827,7 @@ export class Model extends RelationshipModel {
     if (!this.data._id) return;
 
     if (this.deletedAtColumn) {
-      (this.data as any)[this.deletedAtColumn] = new Date();
+      this.set(this.deletedAtColumn, new Date());
     }
 
     const deleteStrategy: ModelDeleteStrategy =
@@ -870,6 +869,7 @@ export class Model extends RelationshipModel {
     }
 
     this.onDeleted();
+
     selfModelEvents.trigger("deleted", this);
     ModelEvents.trigger("deleted", this);
 

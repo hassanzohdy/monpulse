@@ -26,8 +26,6 @@ export type ShapedArrayOfObject = {
  */
 
 export function shapedArray(shape: ShapedArrayType | ShapedArrayOfObject) {
-  console.log(shape);
-
   return (value: any) => {
     // because the model check if the value is an array, it will loop over it
     // so we'll get only one a value at a time
