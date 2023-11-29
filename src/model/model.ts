@@ -676,7 +676,10 @@ export class Model extends RelationshipModel {
         // if so, then each value in the array should have `localeCode` and `value` keys
         // if so, then it will be cast only to the value key inside each object
         // so the final output will be localeCode and `castValue` of the value key
-        if (value[0]?.localeCode && value[0]?.value) {
+        if (castType === "array") {
+          // just do nothing we're good for now
+          // TODO: Enhance the if statement
+        } else if (value[0]?.localeCode && value[0]?.value) {
           value = await Promise.all(
             value.map(async item => {
               return {
