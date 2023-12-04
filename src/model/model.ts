@@ -160,7 +160,7 @@ export class Model extends RelationshipModel {
       }
     }
 
-    this.originalData = this.castDates(this.originalData);
+    // this.originalData = this.castDates(this.originalData);
 
     this.data = clone(this.originalData);
 
