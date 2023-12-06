@@ -126,20 +126,26 @@ export class ModelSync {
 
     if (!syncedModel) return;
 
-    const modelData =
-      typeof (model as any)[this.embedMethod] !== "undefined"
-        ? (model as any)[this.embedMethod]
-        : model.data;
+    try {
+      const modelData =
+        typeof (model as any)[this.embedMethod] !== "undefined"
+          ? (model as any)[this.embedMethod]
+          : model.data;
 
-    for (const column of columns) {
-      if (this.syncMode === "single") {
-        syncedModel.set(column, modelData);
-      } else {
-        syncedModel.associate(column, modelData);
+      for (const column of columns) {
+        if (this.syncMode === "single") {
+          syncedModel.set(column, modelData);
+        } else {
+          syncedModel.associate(column, modelData);
+        }
       }
-    }
 
-    await syncedModel.save();
+      await syncedModel.save();
+    } catch (error: any) {
+      console.log("Error in Sync", error.message);
+      console.log(model);
+      throw error;
+    }
   }
 
   /**
@@ -174,46 +180,52 @@ export class ModelSync {
 
     const models: Model[] = await query.get();
 
-    const modelData =
-      typeof (model as any)[this.embedMethod] !== "undefined"
-        ? (model as any)[this.embedMethod]()
-        : model.embeddedData;
+    try {
+      const modelData =
+        typeof (model as any)[this.embedMethod] !== "undefined"
+          ? (model as any)[this.embedMethod]
+          : model.embeddedData;
 
-    for (const updatingModel of models) {
-      for (const column of columns) {
-        if (this.syncMode === "single") {
-          updatingModel.set(column, modelData);
-        } else {
-          if (column.includes(".")) {
-            // if column includes dot, then it's a nested column
-            // so we need to get the top document key as it should be an array.
-            const [topKey, nestedKey] = column.split(".");
-            const documentsList = updatingModel.get(topKey) || [];
-            // as we're updating, so there should be at least one document
-            if (documentsList?.length === 0) continue;
-            // now we need to find the document that has the same id as the model we're updating
-            const documentIndex = documentsList.findIndex(
-              (document: any) => document[nestedKey]?.id === model.get("id"),
-            );
-            // if document is not found, then we don't need to update
-            if (documentIndex === -1) continue;
-
-            // now we need to update the document
-            documentsList[documentIndex][nestedKey] = modelData;
-
-            // and finally set the updated documents list
-            updatingModel.set(topKey, documentsList);
+      for (const updatingModel of models) {
+        for (const column of columns) {
+          if (this.syncMode === "single") {
+            updatingModel.set(column, modelData);
           } else {
-            // otherwise, it is a direct column update so we can just set it
-            updatingModel.reassociate(column, modelData);
+            if (column.includes(".")) {
+              // if column includes dot, then it's a nested column
+              // so we need to get the top document key as it should be an array.
+              const [topKey, nestedKey] = column.split(".");
+              const documentsList = updatingModel.get(topKey) || [];
+              // as we're updating, so there should be at least one document
+              if (documentsList?.length === 0) continue;
+              // now we need to find the document that has the same id as the model we're updating
+              const documentIndex = documentsList.findIndex(
+                (document: any) => document[nestedKey]?.id === model.get("id"),
+              );
+              // if document is not found, then we don't need to update
+              if (documentIndex === -1) continue;
+
+              // now we need to update the document
+              documentsList[documentIndex][nestedKey] = modelData;
+
+              // and finally set the updated documents list
+              updatingModel.set(topKey, documentsList);
+            } else {
+              // otherwise, it is a direct column update so we can just set it
+              updatingModel.reassociate(column, modelData);
+            }
           }
         }
-      }
 
-      // disable casting so we can save the data as it is
-      await updatingModel.save(undefined, {
-        cast: false,
-      });
+        // disable casting so we can save the data as it is
+        await updatingModel.save(undefined, {
+          cast: false,
+        });
+      }
+    } catch (error: any) {
+      console.log("Error in Sync", error.message);
+      console.log(model);
+      throw error;
     }
   }
 

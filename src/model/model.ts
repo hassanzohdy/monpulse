@@ -8,7 +8,7 @@ import {
   set,
 } from "@mongez/reinforcements";
 import { isEmpty, isPlainObject } from "@mongez/supportive-is";
-import { fromUTC, toUTC } from "@mongez/time-wizard";
+import { toUTC } from "@mongez/time-wizard";
 import dayjs from "dayjs";
 import { MongoServerError, ObjectId } from "mongodb";
 import { RelationshipModel } from "./relationships";
@@ -160,8 +160,6 @@ export class Model extends RelationshipModel {
       }
     }
 
-    // this.originalData = this.castDates(this.originalData);
-
     this.data = clone(this.originalData);
 
     this.initialData = clone(this.originalData);
@@ -180,34 +178,6 @@ export class Model extends RelationshipModel {
    */
   public get castColumns() {
     return Object.keys(this.casts);
-  }
-
-  /**
-   * Cast dates
-   */
-  protected castDates(data: Schema) {
-    const dates = [
-      this.createdAtColumn,
-      this.updatedAtColumn,
-      this.deletedAtColumn,
-    ];
-
-    for (const column in this.casts) {
-      if (this.casts[column] === "date") {
-        dates.push(column);
-      }
-    }
-
-    const newData: Partial<Schema> = { ...data };
-    dates.forEach(dateColumn => {
-      const date: Date | undefined = get(newData, dateColumn);
-
-      if (date) {
-        set(newData, dateColumn, fromUTC(new Date(date)));
-      }
-    });
-
-    return newData as Schema;
   }
 
   /**
