@@ -429,7 +429,9 @@ export class Model extends RelationshipModel {
             const createdAtColumn = this.createdAtColumn;
 
             // if the column does not exist, then create it
-            if (createdAtColumn) {
+            if (this.data[createdAtColumn]) {
+              this.data[createdAtColumn] = new Date(this.data[createdAtColumn]);
+            } else if (createdAtColumn) {
               this.data[createdAtColumn] = now;
             }
 
