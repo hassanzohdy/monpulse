@@ -671,6 +671,10 @@ export class Model extends RelationshipModel {
         value = await castValue(value);
       }
 
+      if (Array.isArray(value)) {
+        value = value.filter(value => value !== null && value !== undefined);
+      }
+
       this.set(column, value);
     }
 
