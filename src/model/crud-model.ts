@@ -526,7 +526,7 @@ export abstract class CrudModel extends BaseModel {
     }
 
     await (this as any).events().trigger("fetching", this, filters);
-    await (BaseModel as any).events().trigger("fetching", BaseModel, filters);
+    await (BaseModel as any).events().trigger("fetching", this, filters);
 
     return filters;
   }
