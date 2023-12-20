@@ -344,6 +344,7 @@ export class Model extends RelationshipModel {
       forceUpdate?: boolean;
     } = {},
   ) {
+    const saveEvents: any[] = [];
     try {
       if (mergedData) {
         this.merge(mergedData);
@@ -402,12 +403,14 @@ export class Model extends RelationshipModel {
         if (triggerEvents) {
           const selfModelEvents = this.getModelEvents();
           const ModelEvents = this.getBaseModelEvents();
-          this.onSaved();
-          this.onUpdated();
-          selfModelEvents.trigger("updated", this, currentModel);
-          selfModelEvents.trigger("saved", this, currentModel);
-          ModelEvents.trigger("updated", this, currentModel);
-          ModelEvents.trigger("saved", this, currentModel);
+          saveEvents.push(
+            this.onSaved(),
+            this.onUpdated(),
+            selfModelEvents.trigger("updated", this, currentModel),
+            selfModelEvents.trigger("saved", this, currentModel),
+            ModelEvents.trigger("updated", this, currentModel),
+            ModelEvents.trigger("saved", this, currentModel),
+          );
         }
       } else {
         let tries = 3;
@@ -467,12 +470,15 @@ export class Model extends RelationshipModel {
             if (triggerEvents) {
               const selfModelEvents = this.getModelEvents();
               const ModelEvents = this.getBaseModelEvents();
-              this.onSaved();
-              this.onCreated();
-              selfModelEvents.trigger("created", this);
-              selfModelEvents.trigger("saved", this);
-              ModelEvents.trigger("created", this);
-              ModelEvents.trigger("saved", this);
+
+              saveEvents.push(
+                this.onSaved(),
+                this.onCreated(),
+                selfModelEvents.trigger("created", this),
+                selfModelEvents.trigger("saved", this),
+                ModelEvents.trigger("created", this),
+                ModelEvents.trigger("saved", this),
+              );
             }
 
             break;
@@ -507,6 +513,7 @@ export class Model extends RelationshipModel {
       this.originalData._id = this.data._id;
 
       if (triggerEvents) {
+        await Promise.all(saveEvents);
         this.startSyncing(mode, currentModel);
       }
 
