@@ -524,7 +524,7 @@ export class Model extends RelationshipModel {
   public async generateNextId() {
     this.set(
       "id",
-      await this.getStaticProperty("generateNextId").bind(Model)(),
+      await this.getStaticProperty("genNextId").bind(this.constructor)(),
     );
 
     return this.id;

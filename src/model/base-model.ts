@@ -103,7 +103,7 @@ export abstract class BaseModel {
   /**
    * Generate next id
    */
-  public static async generateNextId() {
+  public static async genNextId() {
     return await masterMind.generateNextId(
       this.collection,
       this.getIncrementIdBy(),
