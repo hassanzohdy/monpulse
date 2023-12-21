@@ -1,9 +1,15 @@
 import { GenericObject, toStudlyCase } from "@mongez/reinforcements";
 import { $agg, Aggregate, Pipeline, selectPipeline } from "../aggregate";
-import { Joinable } from "./joinable";
+import { Joinable, JoinableProxy } from "./joinable";
 import { ChunkCallback, Filter, PaginationListing } from "./types";
 
 export class ModelAggregate<T> extends Aggregate {
+  /**
+   * Joining list
+   * Each key will have the model as a value reference to it
+   */
+  protected joiningList: GenericObject = {};
+
   /**
    * Constructor
    */
@@ -15,9 +21,22 @@ export class ModelAggregate<T> extends Aggregate {
   /**
    * {@inheritDoc}
    */
-  public async get<Output = T>(
-    mapData: (record: any) => any = record => new this.model(record),
-  ) {
+  public async get<Output = T>(mapData?: (record: any) => any) {
+    if (!mapData) {
+      mapData = (record: any) => {
+        const model = new this.model(record);
+
+        for (const relation in this.joiningList) {
+          const data = model.get(relation);
+
+          if (!data) continue;
+
+          model.set(relation, this.joiningList[relation](data));
+        }
+
+        return model;
+      };
+    }
     return (await super.get(mapData)) as Output[];
   }
 
@@ -73,33 +92,43 @@ export class ModelAggregate<T> extends Aggregate {
    * Perform a join
    */
   public joining(
-    joining: string | Joinable,
-    options?: {
-      where?: GenericObject;
-      select?: string[];
-      pipeline: (GenericObject | Pipeline)[];
-      as?: string;
-    },
+    joining: string | JoinableProxy,
+    options?:
+      | {
+          where?: GenericObject;
+          select?: string[];
+          pipeline: (GenericObject | Pipeline)[];
+          as?: string;
+        }
+      | ((query: Aggregate) => any),
   ) {
     joining = this.getJoinable(joining);
 
-    if (options?.where) {
-      joining.where(options.where);
+    if (typeof options === "function") {
+      options(joining.query);
+    } else {
+      if (options?.where) {
+        joining.where(options.where);
+      }
+
+      if (options?.select) {
+        joining.select(...options.select);
+      }
+
+      if (options?.as) {
+        joining.as(options.as);
+      }
+
+      if (options?.pipeline) {
+        joining.addPipelines(options.pipeline);
+      }
     }
 
-    if (options?.select) {
-      joining.select(...options.select);
-    }
+    const data = joining.parse();
 
-    if (options?.as) {
-      joining.as(options.as);
-    }
+    this.joiningList[data.as] = joining.getReturnAs();
 
-    if (options?.pipeline) {
-      joining.addPipelines(options.pipeline);
-    }
-
-    return this.lookup(joining.parse());
+    return this.lookup(data);
   }
 
   /**
@@ -110,14 +139,14 @@ export class ModelAggregate<T> extends Aggregate {
       joinable = this.model.joinings[joinable] as Joinable;
     }
 
-    return joinable.clone();
+    return joinable.clone() as JoinableProxy;
   }
 
   /**
    * Perform a join and count the records of the joined collection
    */
   public countJoining(
-    joining: string | Joinable,
+    joining: string | JoinableProxy,
     options?: {
       where?: GenericObject;
       select?: string[];

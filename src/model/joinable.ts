@@ -1,13 +1,11 @@
 import { GenericObject } from "@mongez/reinforcements";
 import pluralize from "pluralize";
-import {
-  LookupPipelineOptions,
-  Pipeline,
-  WhereOperator,
-  selectPipeline,
-  wherePipeline,
-} from "../aggregate";
+import { Aggregate, LookupPipelineOptions, Pipeline } from "../aggregate";
 import { Model } from "../model";
+
+export type JoinableProxy = Joinable & Aggregate;
+
+export type ReturnAsCallback = (data: any | any[]) => any;
 
 export class Joinable {
   /**
@@ -22,16 +20,60 @@ export class Joinable {
   };
 
   /**
-   * Pipelines
+   * Whether to return the data in model
    */
-  protected pipelines: (Pipeline | GenericObject)[] = [];
+  public isInModel = false;
+
+  /**
+   * Return data as callback
+   */
+  protected returnAsCallback: ReturnAsCallback = (data: any) => {
+    if (this.isInModel) {
+      return Array.isArray(data)
+        ? data.map(item => new this.model(item))
+        : new this.model(data);
+    }
+
+    return data;
+  };
+
+  /**
+   * Aggregate instance
+   */
+  public query: Aggregate;
 
   /**
    * Constructor
    * The Joined Model
    */
-  public constructor(protected model: typeof Model) {
+  public constructor(public model: typeof Model) {
     this.lookupData.from = model.collection;
+    this.query = new Aggregate(model.collection);
+  }
+
+  /**
+   * Set the return as callback
+   */
+  public returnAs(callback: ReturnAsCallback) {
+    this.returnAsCallback = callback;
+
+    return this;
+  }
+
+  /**
+   * Get return as callback
+   */
+  public getReturnAs() {
+    return this.returnAsCallback;
+  }
+
+  /**
+   * Return data in model
+   */
+  public inModel(inModel = true) {
+    this.isInModel = inModel;
+
+    return this;
   }
 
   /**
@@ -80,8 +122,8 @@ export class Joinable {
   /**
    * Set the pipeline
    */
-  public addPipelines(pipeline: (Pipeline | GenericObject)[]) {
-    this.pipelines.push(...pipeline);
+  public addPipeline(pipeline: (Pipeline | GenericObject)[]) {
+    this.query.addPipeline(pipeline);
     return this;
   }
 
@@ -90,35 +132,6 @@ export class Joinable {
    */
   public let(letData: LookupPipelineOptions["let"]) {
     this.lookupData.let = letData;
-
-    return this;
-  }
-
-  /**
-   * Add selected columns
-   */
-  public select(...columns: string[]) {
-    this.pipelines.push(selectPipeline(columns));
-    return this;
-  }
-
-  /**
-   * Add pipeline
-   */
-  public addPipeline(pipeline: Pipeline | GenericObject) {
-    this.pipelines.push(pipeline);
-
-    return this;
-  }
-
-  /**
-   * Add a ware clause to the pipeline
-   */
-  public where(column: string, value: any): this;
-  public where(column: string, operator: WhereOperator, value: any): this;
-  public where(column: GenericObject): this;
-  public where(...args: any[]) {
-    this.pipelines.push((wherePipeline as any)(...args));
 
     return this;
   }
@@ -154,21 +167,19 @@ export class Joinable {
       lookupData.localField = name + ".id";
     }
 
-    if (this.pipelines.length > 0) {
-      lookupData.pipeline = this.pipelines;
-    }
+    lookupData.pipeline = this.query.parse();
 
     // reset the pipelines
     this.reset();
 
-    return lookupData;
+    return lookupData as Required<LookupPipelineOptions>;
   }
 
   /**
    * Reset the pipelines
    */
   public reset() {
-    this.pipelines = [];
+    this.query = new Aggregate(this.model.collection);
   }
 
   /**
@@ -179,7 +190,11 @@ export class Joinable {
 
     clone.set(this.lookupData);
 
-    clone.pipelines = [...this.pipelines];
+    clone.query.addPipelines(this.query.getPipelines());
+
+    clone.isInModel = this.isInModel;
+
+    clone.returnAsCallback = this.returnAsCallback.bind(clone);
 
     return clone;
   }

@@ -30,7 +30,7 @@ export class Aggregate {
   /**
    * Collection pipelines
    */
-  protected pipelines: Pipeline[] = [];
+  public pipelines: Pipeline[] = [];
 
   /**
    * Aggregate events
@@ -342,7 +342,13 @@ export class Aggregate {
   /**
    * Select the given columns
    */
-  public select(columns: string[] | Record<string, 0 | 1 | boolean>) {
+  public select(...columns: string[]): this;
+  public select(columns: string[] | Record<string, 0 | 1 | boolean>): this;
+  public select(...columns: any[]) {
+    if (columns.length === 1 && Array.isArray(columns[0])) {
+      columns = columns[0];
+    }
+
     return this.pipeline(new SelectPipeline(columns));
   }
 
@@ -631,6 +637,13 @@ export class Aggregate {
     this.pipelines.push(...pipelines);
 
     return this;
+  }
+
+  /**
+   * Get pipelines
+   */
+  public getPipelines() {
+    return this.pipelines;
   }
 
   /**
