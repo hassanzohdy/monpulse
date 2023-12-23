@@ -1,5 +1,6 @@
 import { GenericObject, toStudlyCase } from "@mongez/reinforcements";
 import { $agg, Aggregate, Pipeline, selectPipeline } from "../aggregate";
+import { joinableProxy } from "../utils/joinable-proxy";
 import { Joinable, JoinableProxy } from "./joinable";
 import { ChunkCallback, Filter, PaginationListing } from "./types";
 
@@ -139,7 +140,7 @@ export class ModelAggregate<T> extends Aggregate {
       joinable = this.model.joinings[joinable] as Joinable;
     }
 
-    return joinable.clone() as JoinableProxy;
+    return joinableProxy(joinable.clone());
   }
 
   /**
