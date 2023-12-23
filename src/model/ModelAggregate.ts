@@ -100,12 +100,12 @@ export class ModelAggregate<T> extends Aggregate {
           pipeline: (GenericObject | Pipeline)[];
           as?: string;
         }
-      | ((query: Aggregate) => any),
+      | ((query: JoinableProxy) => any),
   ) {
     joining = this.getJoinable(joining);
 
     if (typeof options === "function") {
-      options(joining.query);
+      options(joining);
     } else {
       if (options?.where) {
         joining.where(options.where);
