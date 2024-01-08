@@ -1,9 +1,9 @@
 import { Random } from "@mongez/reinforcements";
-import { modelBlueprint } from "../blueprint";
+import { modelBlueprint } from "../blueprint/model-blueprint";
 import { database, Database } from "../database";
-import { query } from "../query";
+import { query } from "../query/query";
 import { masterMind } from "./master-mind";
-import { Model } from "./model";
+import type { Model } from "./model";
 import { ModelEvents } from "./model-events";
 import { ChildModel, Document, ModelDeleteStrategy } from "./types";
 

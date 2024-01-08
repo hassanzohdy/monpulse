@@ -1,7 +1,7 @@
 import { GenericObject } from "@mongez/reinforcements";
 import { CollStats, CreateIndexesOptions, ObjectId } from "mongodb";
 import { Database } from "../database";
-import { masterMind } from "../model";
+import { masterMind } from "../model/master-mind";
 
 export class Blueprint {
   /**
