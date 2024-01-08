@@ -4,7 +4,7 @@ export class ModelEvents {
   /**
    * Event callbacks
    */
-  protected callbacks: Record<string, any[]> = {
+  public callbacks: Record<string, any[]> = {
     saving: [],
     saved: [],
     creating: [],
@@ -113,9 +113,7 @@ export class ModelEvents {
   public async trigger(event: string, ...args: any[]) {
     const callbacks = this.callbacks[event];
 
-    if (!callbacks) {
-      return;
-    }
+    if (!callbacks) return;
 
     for (const callback of callbacks) {
       await callback(...args);

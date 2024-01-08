@@ -94,8 +94,18 @@ export type CustomCastType = (value: any, column: string, model: Model) => any;
 /**
  * Custom casts
  */
-export type CustomCasts = {
-  [column: string]: (model: Model, column: string) => any | Promise<any>;
+export type CustomCasts<T extends string = string> = Record<
+  T,
+  (model: Model, column: string) => any | Promise<any>
+>;
+
+type EnumType<T extends Record<string, string | number>> = T[keyof T];
+
+type EnumColumn = EnumType<any>;
+
+export type EmbeddedModel = {
+  model: typeof Model;
+  embedKey?: string;
 };
 
 export type CastType =
@@ -115,7 +125,10 @@ export type CastType =
   | "mixed"
   | CustomCastType
   | [CustomCastType]
-  | Model;
+  | EnumColumn
+  // also it supports enum
+  | typeof Model
+  | EmbeddedModel;
 
 export type Casts = {
   [column: string]: CastType;

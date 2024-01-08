@@ -26,6 +26,82 @@ export class MasterMind {
   }
 
   /**
+   * Set last id for the given collection
+   */
+  public async setLastId(
+    collection: string,
+    id: number,
+    { session = this.getCurrentSession() }: { session?: ClientSession } = {},
+  ) {
+    const query = this.database.collection(this.collection);
+
+    const collectionDocument = await query.findOne({
+      collection: collection,
+    });
+
+    if (collectionDocument) {
+      // update the collection with the latest id
+      await query.updateOne(
+        {
+          collection: collection,
+        },
+        {
+          $set: {
+            id: id,
+          },
+        },
+        {
+          session,
+        },
+      );
+    } else {
+      // if the collection is not found in the master mind table
+      // create a new record for it
+      await query.insertOne(
+        {
+          collection: collection,
+          id: id,
+        },
+        {
+          session,
+        },
+      );
+    }
+  }
+
+  /**
+   * Rename the given collection to the new one to keep the last id updated and not to be reset
+   */
+  public async renameCollection(
+    oldCollection: string,
+    newCollection: string,
+    { session = this.getCurrentSession() }: { session?: ClientSession } = {},
+  ) {
+    const query = this.database.collection(this.collection);
+
+    const collectionDocument = await query.findOne({
+      collection: oldCollection,
+    });
+
+    if (collectionDocument) {
+      // update the collection with the latest id
+      await query.updateOne(
+        {
+          collection: oldCollection,
+        },
+        {
+          $set: {
+            collection: newCollection,
+          },
+        },
+        {
+          session,
+        },
+      );
+    }
+  }
+
+  /**
    * Get current active session from database object
    */
   public getCurrentSession() {

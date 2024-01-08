@@ -207,4 +207,34 @@ export abstract class BaseModel {
   public static blueprint() {
     return modelBlueprint(this as any);
   }
+
+  /**
+   * Define what columns should be embedded when model document is embedded in another document.
+   */
+  public static embedOnly(...columns: string[]) {
+    return {
+      model: this,
+      embeddedKey: columns,
+    };
+  }
+
+  /**
+   * Define the embedded getter key to be used when embedding the model
+   */
+  public static embed(key: string | string[]) {
+    return {
+      model: this,
+      embeddedKey: key,
+    };
+  }
+
+  /**
+   * Embed only id
+   */
+  public static get embedOnlyId() {
+    return {
+      model: this,
+      embeddedKey: "onlyId",
+    };
+  }
 }

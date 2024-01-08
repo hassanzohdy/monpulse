@@ -97,7 +97,7 @@ export abstract class RelationshipModel extends CrudModel {
           : model.embeddedData
         : model;
 
-    if (columnValue === undefined) return;
+    if (columnValue === undefined) return this;
 
     // make a deep copy so when changing the data, it won't affect the original data
     const documentsList = clone(this.get(column, []));

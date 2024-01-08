@@ -21,7 +21,15 @@ import {
   toOperator,
 } from "./WhereExpression";
 import { WherePipeline } from "./WherePipeline";
-import { $agg, count, dayOfMonth, last, month, year } from "./expressions";
+import {
+  $agg,
+  count,
+  dayOfMonth,
+  last,
+  month,
+  week,
+  year,
+} from "./expressions";
 import { parsePipelines } from "./parsePipelines";
 import { Pipeline } from "./pipeline";
 import { WhereOperator } from "./types";
@@ -205,6 +213,20 @@ export class Aggregate {
         year: year(column),
         month: month(column),
         day: dayOfMonth(column),
+      },
+      groupByData,
+    );
+  }
+
+  /**
+   * Group by week and year
+   */
+  public groupByWeek(column: string, groupByData?: GenericObject) {
+    column = $agg.columnName(column);
+    return this.groupBy(
+      {
+        year: year(column),
+        week: week(column),
       },
       groupByData,
     );
@@ -400,6 +422,8 @@ export class Aggregate {
   /**
    * Or Where stage
    */
+  public orWhere(...operations: GenericObject[]): this;
+  public orWhere(...operations: [column: string, value: any][]): this;
   public orWhere(column: GenericObject) {
     return this.pipeline(new OrWherePipeline(column));
   }

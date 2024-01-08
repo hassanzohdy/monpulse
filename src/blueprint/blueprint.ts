@@ -1,6 +1,7 @@
 import { GenericObject } from "@mongez/reinforcements";
 import { CollStats, CreateIndexesOptions, ObjectId } from "mongodb";
 import { Database } from "../database";
+import { masterMind } from "../model";
 
 export class Blueprint {
   /**
@@ -279,7 +280,12 @@ export class Blueprint {
    * Rename collection to the given name
    */
   public async rename(newName: string) {
-    return await this.collection().rename(newName);
+    const output = await this.collection().rename(newName);
+
+    // now update the collection name in mastermind
+    await masterMind.renameCollection(this.collectionName, newName);
+
+    return output;
   }
 
   /**
@@ -309,6 +315,13 @@ export class Blueprint {
    */
   public async dump() {
     return await this.collection().find({}).toArray();
+  }
+
+  /**
+   * Set last id in mastermind
+   */
+  public async setLastId(id: number) {
+    return await masterMind.setLastId(this.collectionName, id);
   }
 }
 

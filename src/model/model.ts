@@ -11,6 +11,7 @@ import { isEmpty, isPlainObject } from "@mongez/supportive-is";
 import { toUTC } from "@mongez/time-wizard";
 import dayjs from "dayjs";
 import { MongoServerError, ObjectId } from "mongodb";
+import { castEnum, castModel } from "../casts";
 import { RelationshipModel } from "./relationships";
 import {
   CastType,
@@ -23,29 +24,38 @@ import {
 
 // type Schema = Document | ModelDocument;
 
-export type Schema = Record<string, any> & {
+export type Schema<ModelSchema = Document> = ModelSchema & {
   _id?: ObjectId;
   id?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
 
-export class Model extends RelationshipModel {
+type ModelSchema = Schema;
+type ModelDocument = Document;
+
+export class Model
+  // <
+  //   ModelDocument extends Document = any,
+  //   ModelSchema extends Schema<ModelDocument> = any,
+  // >
+  extends RelationshipModel
+{
   /**
    * Model Initial Document data
    */
-  public initialData: Partial<Schema> = {};
+  public initialData: Partial<ModelSchema> = {};
 
   /**
    * Model Document data
    */
-  public data!: Schema;
+  public data!: ModelSchema;
 
   /**
    * Define Default value data that will be merged with the models' data
    * on the create process
    */
-  public defaultValue: Partial<Schema> = {};
+  public defaultValue: Partial<ModelSchema> = {};
 
   /**
    * A flag to determine if the model is being restored
@@ -62,27 +72,27 @@ export class Model extends RelationshipModel {
    *
    * For example: `name` is not a column in the given data, but it will be concatenation of `firstName` and `lastName`
    */
-  protected customCasts: CustomCasts = {};
+  protected customCasts: CustomCasts<string> = {};
 
   /**
    * Guarded fields
    */
-  public guarded: string[] = [];
+  public guarded: (keyof ModelDocument)[] = [];
 
   /**
    * Fillable fields
    */
-  public filled: string[] = [];
+  public filled: (keyof ModelDocument)[] = [];
 
   /**
    * Embedded columns
    */
-  public embedded: string[] = [];
+  public embedded: (keyof ModelSchema)[] = [];
 
   /**
    * Embed all columns except the given columns
    */
-  public embedAllExcept: string[] = [];
+  public embedAllExcept: (keyof ModelDocument)[] = [];
 
   /**
    * Embed all columns except timestamps and created|updated|deleted by columns
@@ -137,19 +147,18 @@ export class Model extends RelationshipModel {
   /**
    * Original data
    */
-  public originalData: Schema = {} as Schema;
+  public originalData: ModelSchema = {} as ModelSchema;
 
   /**
    * Constructor
    */
-  public constructor(originalData: Schema | Model = {} as Schema) {
-    //
+  public constructor(originalData: Partial<ModelSchema> = {}) {
     super();
 
     if (originalData instanceof Model) {
-      this.originalData = clone(originalData.data) as Schema;
+      this.originalData = clone(originalData.data) as ModelSchema;
     } else {
-      this.originalData = clone(originalData) as Schema;
+      this.originalData = clone(originalData) as ModelSchema;
     }
 
     if (typeof originalData?._id === "string") {
@@ -191,14 +200,14 @@ export class Model extends RelationshipModel {
    * Get all data except the guarded fields
    */
   public get publicData() {
-    return except(this.data, this.guarded);
+    return except(this.data, this.guarded as string[]);
   }
 
   /**
    * Get guarded data
    */
   public get guardedData() {
-    return only(this.data, this.guarded);
+    return only(this.data, this.guarded as string[]);
   }
 
   /**
@@ -232,8 +241,8 @@ export class Model extends RelationshipModel {
   /**
    * Set a column in the model data
    */
-  public set(column: keyof Schema, value: any) {
-    this.data = set(this.data, column as string, value) as Schema;
+  public set(column: keyof ModelSchema, value: any) {
+    this.data = set(this.data, column as string, value) as ModelSchema;
 
     return this;
   }
@@ -241,49 +250,49 @@ export class Model extends RelationshipModel {
   /**
    * Increment the given column by the given value
    */
-  public increment(column: keyof Schema, value = 1) {
+  public increment(column: keyof ModelSchema, value = 1) {
     return this.set(column, this.get(column, 0) + value);
   }
 
   /**
    * Decrement the given column by the given value
    */
-  public decrement(column: keyof Schema, value = 1) {
+  public decrement(column: keyof ModelSchema, value = 1) {
     return this.set(column, this.get(column, 0) - value);
   }
 
   /**
    * Get initial value of the given column
    */
-  public getInitial(column: keyof Schema, defaultValue?: any) {
+  public getInitial(column: keyof ModelSchema, defaultValue?: any) {
     return get(this.initialData, column as string, defaultValue);
   }
 
   /**
    * Get value of the given column
    */
-  public get(column: keyof Schema, defaultValue?: any) {
+  public get(column: keyof ModelSchema, defaultValue?: any) {
     return get(this.data, column as string, defaultValue);
   }
 
   /**
    * Determine whether the given column exists in the document
    */
-  public has(column: keyof Schema) {
+  public has(column: keyof ModelSchema) {
     return get(this.data, column as string) !== undefined;
   }
 
   /**
    * Get all columns except the given ones
    */
-  public except(columns: (keyof Schema)[]): Document {
+  public except(columns: (keyof ModelSchema)[]): Document {
     return except(this.data, columns as string[]);
   }
 
   /**
    * Get only the given columns
    */
-  public only(columns: (keyof Schema)[]): Document {
+  public only(columns: (keyof ModelSchema)[]): Document {
     return only(this.data, columns as string[]);
   }
 
@@ -297,7 +306,7 @@ export class Model extends RelationshipModel {
   /**
    * Unset or remove the given columns from the data
    */
-  public unset(...columns: (keyof Schema)[]) {
+  public unset(...columns: (keyof ModelSchema)[]) {
     this.data = except(this.data, columns as string[]);
 
     return this;
@@ -306,7 +315,7 @@ export class Model extends RelationshipModel {
   /**
    * Replace the entire document data with the given new data
    */
-  public replaceWith(data: Schema) {
+  public replaceWith(data: ModelSchema) {
     if (!data.id && this.data.id) {
       data.id = this.data.id;
     }
@@ -333,7 +342,7 @@ export class Model extends RelationshipModel {
    * Perform saving operation either by updating or creating a new record in database
    */
   public async save(
-    mergedData?: Omit<Schema, "id" | "_id">,
+    mergedData?: Omit<ModelSchema, "id" | "_id">,
     {
       triggerEvents = true,
       cast = true,
@@ -386,9 +395,9 @@ export class Model extends RelationshipModel {
 
           await this.onSaving();
           await this.onUpdating();
-          await selfModelEvents.trigger("updating", this);
+          await selfModelEvents.trigger("updating", this, currentModel);
           await selfModelEvents.trigger("saving", this, currentModel);
-          await ModelEvents.trigger("updating", this);
+          await ModelEvents.trigger("updating", this, currentModel);
           await ModelEvents.trigger("saving", this, currentModel);
         }
 
@@ -433,16 +442,18 @@ export class Model extends RelationshipModel {
 
             // if the column does not exist, then create it
             if (this.data[createdAtColumn]) {
-              this.data[createdAtColumn] = new Date(this.data[createdAtColumn]);
+              (this.data as any)[createdAtColumn] = new Date(
+                this.data[createdAtColumn],
+              );
             } else if (createdAtColumn) {
-              this.data[createdAtColumn] = now;
+              (this.data as any)[createdAtColumn] = now;
             }
 
             // if the column does not exist, then create it
             const updatedAtColumn = this.updatedAtColumn;
 
             if (updatedAtColumn) {
-              this.data[updatedAtColumn] = now;
+              (this.data as any)[updatedAtColumn] = now;
             }
 
             if (cast) {
@@ -465,7 +476,7 @@ export class Model extends RelationshipModel {
             this.data = (await this.getQuery().create(
               this.getCollection(),
               this.data,
-            )) as Schema;
+            )) as ModelSchema;
 
             if (triggerEvents) {
               const selfModelEvents = this.getModelEvents();
@@ -483,6 +494,8 @@ export class Model extends RelationshipModel {
 
             break;
           } catch (error: MongoServerError | any) {
+            console.log(error.message);
+            console.log(error.trace);
             // Handle duplicate key error
             if (error instanceof MongoServerError && error.code === 11000) {
               if (tries < 2) {
@@ -541,7 +554,7 @@ export class Model extends RelationshipModel {
    * Perform saving but without any events triggers
    */
   public async silentSaving(
-    mergedData?: Omit<Schema, "id" | "_id">,
+    mergedData?: Omit<ModelSchema, "id" | "_id">,
     options?: { cast?: boolean },
   ) {
     return await this.save(mergedData, {
@@ -553,7 +566,7 @@ export class Model extends RelationshipModel {
   /**
    * Determine whether the model should be updated or not
    */
-  protected shouldUpdate(originalData: Schema, data: Schema) {
+  protected shouldUpdate(originalData: ModelSchema, data: ModelSchema) {
     return areEqual(originalData, data) === false;
   }
 
@@ -629,8 +642,20 @@ export class Model extends RelationshipModel {
       const castType = this.casts[column];
 
       const castValue = async (value: any) => {
-        // if cast type is passed as model class, then get its embedded data
-        if (value instanceof Model) {
+        if (castType.prototype instanceof Model) {
+          // if cast type is passed as model class, then get its embedded data
+          value = await castModel(castType)(value);
+        } else if (castType?.model) {
+          // it means the user is passing a custom model embedding i.e Model.embed('embedToProduct') => Product to embed from the getter property
+          // embedToProduct
+          // @see EmbeddedModel
+
+          value = await castModel(castType.model, castType.embeddedKey)(value);
+        } else if (typeof castType === "object") {
+          // it means the user is passing an enum object
+
+          value = await castEnum(castType)(value);
+        } else if (value instanceof Model) {
           value = value.embeddedData;
         } else if (typeof castType === "function") {
           value = await (castType as CustomCastType)(value, column, this);
@@ -682,13 +707,23 @@ export class Model extends RelationshipModel {
         value = value.filter(value => value !== null && value !== undefined);
       }
 
-      this.set(column, value);
+      if (value !== undefined) {
+        this.set(column, value);
+      } else {
+        this.unset(column);
+      }
     }
 
     for (const column in this.customCasts) {
       const castType = this.customCasts[column];
 
-      this.set(column, await castType(this, column));
+      const value = await castType(this, column);
+
+      if (value !== undefined) {
+        this.set(column, value);
+      } else {
+        this.unset(column);
+      }
     }
   }
 
@@ -697,13 +732,17 @@ export class Model extends RelationshipModel {
    */
   protected castValue(value: any, castType: CastType) {
     const isEmptyValue = isEmpty(value);
+
+    if (isEmptyValue) return undefined;
+
     switch (castType) {
       case "string":
         return isEmptyValue ? "" : String(value).trim();
       case "localized":
-        if (isEmptyValue) return [];
+        // if (isEmptyValue) return [];
 
-        if (!Array.isArray(value)) return [];
+        // if (!Array.isArray(value)) return [];
+        if (!Array.isArray(value)) return undefined;
 
         return value
           .filter(value => !isEmpty(value) && isPlainObject(value))
@@ -714,15 +753,18 @@ export class Model extends RelationshipModel {
             };
           });
       case "number":
-        return isEmptyValue ? 0 : Number(value);
+        // return isEmptyValue ? 0 : Number(value);
+        return Number(value);
       case "int":
       case "integer":
-        return isEmptyValue ? 0 : parseInt(value);
+        // return isEmptyValue ? 0 : parseInt(value);
+        return parseInt(value);
       case "float":
-        return isEmptyValue ? 0 : parseFloat(value);
+        // return isEmptyValue ? 0 : parseFloat(value);
+        return parseFloat(value);
       case "bool":
       case "boolean": {
-        if (isEmptyValue) return false;
+        // if (isEmptyValue) return false;
 
         if (value === "true") return true;
 
@@ -735,7 +777,7 @@ export class Model extends RelationshipModel {
           return toUTC(value);
         }
 
-        if (isEmptyValue) return null;
+        // if (isEmptyValue) return null;
 
         if (dayjs.isDayjs(value)) {
           return toUTC(value.toDate());
@@ -744,7 +786,7 @@ export class Model extends RelationshipModel {
         return toUTC(new Date(value));
       }
       case "location": {
-        if (isEmptyValue) return null;
+        // if (isEmptyValue) return null;
 
         const lat = value?.[0] || value?.lat;
         const lng = value?.[1] || value?.lng;
@@ -757,20 +799,20 @@ export class Model extends RelationshipModel {
         };
       }
       case "object": {
-        if (isEmptyValue) return {};
+        // if (isEmptyValue) return {};
 
         if (typeof value === "string") {
           try {
             return JSON.parse(value);
           } catch (error) {
-            return {};
+            return undefined;
           }
         }
 
         return value;
       }
       case "array": {
-        if (isEmptyValue) return [];
+        // if (isEmptyValue) return [];
 
         if (typeof value === "string") {
           return JSON.parse(value);
@@ -892,7 +934,7 @@ export class Model extends RelationshipModel {
    */
   public get embeddedData() {
     if (this.embedAllExcept.length > 0) {
-      return except(this.data, this.embedAllExcept);
+      return except(this.data, this.embedAllExcept as string[]);
     }
 
     if (this.embedAllExceptTimestampsAndUserColumns) {

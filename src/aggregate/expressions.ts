@@ -149,6 +149,15 @@ export function month(column: string) {
 }
 
 /**
+ * Get week expression
+ */
+export function week(column: string) {
+  return {
+    $isoWeek: columnName(column),
+  };
+}
+
+/**
  * Get first value of month expression
  */
 export function firstMonth(column: string) {

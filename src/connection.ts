@@ -69,7 +69,7 @@ export class Connection {
         connectionOptions.authSource = dbAuth;
       }
 
-      if (username && password) {
+      if (username && password && !url) {
         connectionOptions.auth = {
           username,
           password,
