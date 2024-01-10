@@ -339,6 +339,40 @@ export class Model
   }
 
   /**
+   * Push the given values to the given column
+   * If the given column does not exists, it will be created
+   * If the given value exists but not an array it will be ignored
+   */
+  public push(column: keyof ModelSchema, ...values: any[]) {
+    const currentValue = this.get(column);
+
+    if (Array.isArray(currentValue)) {
+      this.set(column, [...currentValue, ...values]);
+    } else if (!currentValue) {
+      this.set(column, values);
+    }
+
+    return this;
+  }
+
+  /**
+   * Add the given values to the beginning of the given column
+   * If the given column does not exists, it will be created
+   * If the given value exists but not an array it will be ignored
+   */
+  public unshift(column: keyof ModelSchema, ...values: any[]) {
+    const currentValue = this.get(column);
+
+    if (Array.isArray(currentValue)) {
+      this.set(column, [...values, ...currentValue]);
+    } else if (!currentValue) {
+      this.set(column, values);
+    }
+
+    return this;
+  }
+
+  /**
    * Perform saving operation either by updating or creating a new record in database
    */
   public async save(

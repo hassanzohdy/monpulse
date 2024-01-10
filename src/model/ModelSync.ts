@@ -78,7 +78,7 @@ export class ModelSync {
   }
 
   /**
-   * Remove on delete
+   * Remove all matched documents on delete to be fully deleted
    */
   public removeOnDelete() {
     this.whenDelete = "remove";
@@ -169,7 +169,7 @@ export class ModelSync {
     const whereOptions: any = {};
 
     for (const column of columns) {
-      whereOptions[column + ".id"] = model.get("id");
+      whereOptions[column + ".id"] = model.id;
     }
 
     const query = (this.model as any).aggregate().orWhere(whereOptions);

@@ -1,11 +1,11 @@
-import { Random } from "@mongez/reinforcements";
+import { clone, Random } from "@mongez/reinforcements";
 import { modelBlueprint } from "../blueprint/model-blueprint";
-import { database, Database } from "../database";
+import { database, type Database } from "../database";
 import { query } from "../query/query";
 import { masterMind } from "./master-mind";
 import type { Model } from "./model";
 import { ModelEvents } from "./model-events";
-import { ChildModel, Document, ModelDeleteStrategy } from "./types";
+import { ModelDeleteStrategy, type ChildModel, type Document } from "./types";
 
 const modelEvents = new Map<string, ModelEvents>();
 
@@ -163,7 +163,7 @@ export abstract class BaseModel {
     // if the model has a Output class
     if (Output) {
       // then return the Output instance and call `toJSON` method
-      return await new Output(this).toJSON();
+      return await new Output(clone((this as any as Model).data)).toJSON();
     }
 
     // otherwise return the data object

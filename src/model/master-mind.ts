@@ -1,5 +1,7 @@
-import { ClientSession } from "mongodb";
-import { database, Database } from "../database";
+import { type ClientSession } from "mongodb";
+import { Aggregate } from "../aggregate/aggregate";
+import { database, type Database } from "../database";
+import { query } from "../query/query";
 
 export class MasterMind {
   /**
@@ -106,6 +108,22 @@ export class MasterMind {
    */
   public getCurrentSession() {
     return this.database.getActiveSession()?.session;
+  }
+
+  /**
+   * Update all collections by the last id of each collection in current database
+   */
+  public async updateAllLastId() {
+    for (const document of await query.list("MasterMind")) {
+      const { collection, id } = document;
+      if (!collection) continue;
+      const biggestId = (
+        await new Aggregate(collection).orderByDesc("id").first()
+      )?.id;
+      if (biggestId && biggestId > id) {
+        await masterMind.setLastId(collection, biggestId + 1);
+      }
+    }
   }
 
   /**
