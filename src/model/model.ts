@@ -767,7 +767,9 @@ export class Model
   protected castValue(value: any, castType: CastType) {
     const isEmptyValue = isEmpty(value);
 
-    if (isEmptyValue) return undefined;
+    if (typeof value === "object") {
+      if (value === null) return undefined;
+    } else if (isEmptyValue) return undefined;
 
     switch (castType) {
       case "string":

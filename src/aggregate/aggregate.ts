@@ -596,7 +596,7 @@ export class Aggregate {
   public async whereNearByIn(
     column: string,
     value: [number, number],
-    _inDistance: number,
+    _minDistance: number,
     _maxDistance: number,
   ) {
     return this.where(column, value);

@@ -33,8 +33,7 @@ export class DatabaseLog extends LogChannel {
     if (message instanceof Error) {
       data.trace = message.stack;
       data.message = message.message;
+      this.model.create(data);
     }
-
-    this.model.create(data);
   }
 }
