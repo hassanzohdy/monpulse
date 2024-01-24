@@ -13,6 +13,20 @@ export class DatabaseLog extends LogChannel {
   public model = Log;
 
   /**
+   * Allowed log levels
+   */
+  protected allowedLogLevels: LogLevel[] = [];
+
+  /**
+   * Set the allowed log levels
+   */
+  public setAllowedLogLevels(levels: LogLevel[]) {
+    this.allowedLogLevels = levels;
+
+    return this;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public async log(
@@ -22,6 +36,9 @@ export class DatabaseLog extends LogChannel {
     level: LogLevel,
   ) {
     if (!this.model.database?.connection?.isConnected()) return;
+
+    if (this.allowedLogLevels.length && !this.allowedLogLevels.includes(level))
+      return;
 
     const data: any = {
       module,

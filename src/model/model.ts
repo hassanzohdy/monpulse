@@ -271,8 +271,46 @@ export class Model
   /**
    * Get value of the given column
    */
-  public get(column: keyof ModelSchema, defaultValue?: any) {
+  public get<ValueType = any>(
+    column: keyof ModelSchema,
+    defaultValue?: any,
+  ): ValueType {
     return get(this.data, column as string, defaultValue);
+  }
+
+  /**
+   * Return the value of the given column as a string
+   */
+  public string(column: keyof ModelSchema, defaultValue?: any) {
+    return String(this.get(column, defaultValue));
+  }
+
+  /**
+   * Return the value of the given column as an integer
+   */
+  public int(column: keyof ModelSchema, defaultValue?: any) {
+    return parseInt(this.get(column, defaultValue));
+  }
+
+  /**
+   * Return the value of the given column as a float
+   */
+  public float(column: keyof ModelSchema, defaultValue?: any) {
+    return parseFloat(this.get(column, defaultValue));
+  }
+
+  /**
+   * Return the value of the given column as a number
+   */
+  public number(column: keyof ModelSchema, defaultValue?: any) {
+    return Number(this.get(column, defaultValue));
+  }
+
+  /**
+   * Return the value of the given column as a boolean
+   */
+  public bool(column: keyof ModelSchema, defaultValue?: any) {
+    return Boolean(this.get(column, defaultValue));
   }
 
   /**
@@ -356,6 +394,22 @@ export class Model
   }
 
   /**
+   * Push the given values to the given column only if not exists
+   */
+  public pushOnce(column: keyof ModelSchema, ...values: any[]) {
+    const currentValue = this.get(column);
+
+    if (Array.isArray(currentValue)) {
+      const newValues = Array.from(new Set([...currentValue, ...values]));
+      this.set(column, newValues);
+    } else if (!currentValue) {
+      this.set(column, values);
+    }
+
+    return this;
+  }
+
+  /**
    * Add the given values to the beginning of the given column
    * If the given column does not exists, it will be created
    * If the given value exists but not an array it will be ignored
@@ -365,6 +419,22 @@ export class Model
 
     if (Array.isArray(currentValue)) {
       this.set(column, [...values, ...currentValue]);
+    } else if (!currentValue) {
+      this.set(column, values);
+    }
+
+    return this;
+  }
+
+  /**
+   * Add the given values to the beginning of the given column only if not exists
+   */
+  public unshiftOnce(column: keyof ModelSchema, ...values: any[]) {
+    const currentValue = this.get(column);
+
+    if (Array.isArray(currentValue)) {
+      const newValues = Array.from(new Set([...values, ...currentValue]));
+      this.set(column, newValues);
     } else if (!currentValue) {
       this.set(column, values);
     }
@@ -762,6 +832,20 @@ export class Model
   }
 
   /**
+   * Return only the given columns to be used in output
+   */
+  public outputOnly(columns: string[]) {
+    return this.clone(this.only(columns));
+  }
+
+  /**
+   * Return all columns except the given columns to be used in output
+   */
+  public outputExcept(columns: string[]) {
+    return this.clone(this.except(columns));
+  }
+
+  /**
    * Cast the given value based on the given cast type
    */
   protected castValue(value: any, castType: CastType) {
@@ -990,8 +1074,8 @@ export class Model
   /**
    * Clone the model
    */
-  public clone() {
-    return new (this.constructor as any)(clone(this.data)) as this;
+  public clone(data: Document = this.data) {
+    return new (this.constructor as any)(clone(data)) as this;
   }
 }
 
