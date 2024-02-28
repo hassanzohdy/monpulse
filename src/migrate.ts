@@ -83,6 +83,8 @@ export function getMigrationName(migration: any) {
 
 export async function dropMigrations() {
   for (const migration of currentMigrations) {
+    if (!migration.name) continue;
+
     const migrationName = getMigrationName(migration.name);
 
     console.log(
@@ -124,13 +126,15 @@ export async function startMigrating(fresh = false) {
   }
 
   for (const migration of currentMigrations) {
+    if (!migration.name) continue;
+
     const migrationName = getMigrationName(migration.name);
 
     console.log(
       // add blue arrow mark
       colors.blue("→"),
       colors.cyan("[migration]"),
-      colors.gray("[migrating]"),
+      colors.magenta("[migrating]"),
       "Creating " + colors.yellowBright(`${migrationName} migration`),
     );
 
@@ -152,12 +156,12 @@ export async function startMigrating(fresh = false) {
 
       await migration();
 
-      await migrationOffice.migrate(migrationName);
+      migrationOffice.migrate(migrationName);
       console.log(
         // add green check mark
         colors.green("✓"),
         colors.cyan("[migration]"),
-        colors.gray("[migrated]"),
+        colors.magentaBright("[migrated]"),
         `${colors.greenBright(
           migrationName + " Migration",
         )} has been migrated successfully.`,

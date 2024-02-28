@@ -1,3 +1,4 @@
+import { colors } from "@mongez/copper";
 import events from "@mongez/events";
 import { log } from "@mongez/logger";
 import { MongoClient, MongoClientOptions } from "mongodb";
@@ -61,7 +62,11 @@ export class Connection {
     } = this.configurations;
 
     try {
-      log.info("database", "connection", "Connecting to the database");
+      log.info(
+        "database",
+        "connection",
+        `Connecting to the database ${colors.goldBright(databaseName)}`,
+      );
 
       const connectionOptions = otherConnectionOptions;
 
