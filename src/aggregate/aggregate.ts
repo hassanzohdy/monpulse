@@ -639,8 +639,8 @@ export class Aggregate {
   /**
    * Get new pipeline instance
    */
-  public pipeline(pipeline: Pipeline) {
-    this.pipelines.push(pipeline);
+  public pipeline(...pipelines: Pipeline[]) {
+    this.pipelines.push(...pipelines);
 
     return this;
   }
@@ -808,9 +808,8 @@ export class Aggregate {
       ]);
 
       return results.modifiedCount;
-    } catch (error) {
+    } catch (error: any) {
       log.error("database", "aggregate.update", error);
-      console.log(error);
       throw error;
     }
   }

@@ -561,6 +561,33 @@ export function divide(...columns: string[]) {
   };
 }
 
+/**
+ * Get size expression
+ */
+export function size(column: string) {
+  return {
+    $size: columnName(column),
+  };
+}
+
+/**
+ * Get round expression
+ */
+export function round(column: string, decimalPlaces: number) {
+  return {
+    $round: [columnName(column), decimalPlaces],
+  };
+}
+
+export function _round(value: any, decimalPlaces: number) {
+  return {
+    $round: [value, decimalPlaces],
+  };
+}
+
+/**
+ * Get expression
+ */
 export function expr(expression: any) {
   return {
     $expr: expression,
@@ -571,6 +598,8 @@ export const $agg = {
   // list all aggregation functions
   count,
   sum,
+  round,
+  _round,
   avg,
   multiply: multiply,
   divide: divide,
@@ -608,6 +637,7 @@ export const $agg = {
   ne,
   notEqual,
   inArray,
+  in: inArray,
   nin,
   notIn,
   notInArray,
@@ -628,4 +658,5 @@ export const $agg = {
   cond,
   regex,
   expr,
+  size,
 };

@@ -10,9 +10,9 @@ import {
   UpdateFilter,
   UpdateOptions,
 } from "mongodb";
-import { Database, database } from "../database";
-import { Document, Filter, ModelDocument } from "../model/types";
-import {
+import { database, type Database } from "../database";
+import type { Document, Filter, ModelDocument } from "../model/types";
+import type {
   CountedEventPayload,
   CountingEventPayload,
   CreatedEventPayload,
