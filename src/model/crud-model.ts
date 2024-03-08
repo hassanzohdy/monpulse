@@ -434,6 +434,8 @@ export abstract class CrudModel extends BaseModel {
         : 0;
     }
 
+    filter = await this.prepareFilters(filter);
+
     return await this.query.delete(this.collection, filter);
   }
 

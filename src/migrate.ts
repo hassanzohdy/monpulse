@@ -7,10 +7,6 @@ import { onceConnected } from "./utils";
 
 let currentMigrations: any[] = [];
 
-export function migrate(fresh = false) {
-  onceConnected(() => startMigrating(fresh));
-}
-
 export function setMigrationsList(migrations: any[]) {
   currentMigrations = migrations;
 }
@@ -58,8 +54,6 @@ export function listMigrations() {
         colors.greenBright(migration.name),
       );
     }
-
-    process.exit();
   });
 }
 
@@ -120,7 +114,7 @@ export async function dropMigrations() {
   }
 }
 
-export async function startMigrating(fresh = false) {
+export async function migrate(fresh = false) {
   if (fresh) {
     await dropMigrations();
   }
@@ -170,6 +164,4 @@ export async function startMigrating(fresh = false) {
       console.log(error);
     }
   }
-
-  process.exit(0);
 }
