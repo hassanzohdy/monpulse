@@ -357,6 +357,51 @@ export abstract class CrudModel extends BaseModel {
   }
 
   /**
+   * Find or create a new document based on the given filter and data
+   * If the document is not found, it will be created
+   * otherwise, just return the found document
+   */
+  public static async findOrCreate<T>(
+    this: ChildModel<T>,
+    filter: Filter,
+    data: Document,
+  ): Promise<T> {
+    filter = await this.prepareFilters(filter);
+
+    let model = (await this.first(filter)) as any;
+
+    if (!model) {
+      model = this.self(data);
+      await model.save();
+    }
+
+    return model;
+  }
+
+  /**
+   * Update or create a new document based on the given filter and data
+   */
+  public static async updateOrCreate<T>(
+    this: ChildModel<T>,
+    filter: Filter,
+    data: Document,
+  ): Promise<T> {
+    filter = await this.prepareFilters(filter);
+
+    let model = (await this.first(filter)) as any;
+
+    if (!model) {
+      model = this.self(data);
+    } else {
+      model.merge(data);
+    }
+
+    await model.save();
+
+    return model;
+  }
+
+  /**
    * Count total documents based on the given filter
    */
   public static async count(filter: Filter = {}) {
