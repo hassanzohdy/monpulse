@@ -893,14 +893,12 @@ export class Model
         return Boolean(value);
       }
       case "date": {
-        if (value instanceof Date) {
-          return toUTC(value);
+        if (dayjs.isDayjs(value)) {
+          value = value.toDate();
         }
 
-        // if (isEmptyValue) return null;
-
-        if (dayjs.isDayjs(value)) {
-          return toUTC(value.toDate());
+        if (value instanceof Date) {
+          return toUTC(value);
         }
 
         return toUTC(new Date(value));

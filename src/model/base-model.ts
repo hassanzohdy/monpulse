@@ -1,3 +1,4 @@
+import { faker, type Faker } from "@faker-js/faker";
 import { clone, Random } from "@mongez/reinforcements";
 import { modelBlueprint } from "../blueprint/model-blueprint";
 import { database, type Database } from "../database";
@@ -5,7 +6,12 @@ import { query } from "../query/query";
 import { masterMind } from "./master-mind";
 import type { Model } from "./model";
 import { ModelEvents } from "./model-events";
-import { ModelDeleteStrategy, type ChildModel, type Document } from "./types";
+import {
+  FactoryCreatorCallback,
+  ModelDeleteStrategy,
+  type ChildModel,
+  type Document,
+} from "./types";
 
 const modelEvents = new Map<string, ModelEvents>();
 
@@ -235,6 +241,37 @@ export abstract class BaseModel {
     return {
       model: this,
       embeddedKey: "onlyId",
+    };
+  }
+
+  /**
+   * Document Factory
+   */
+  protected static documentFactory: FactoryCreatorCallback = (
+    _faker: Faker,
+    _index: number,
+  ) => {
+    throw new Error(
+      "Document factory is not defined, pass a callback to `factory.create` method or define `documentFactory` method in the model class",
+    );
+  };
+
+  /**
+   * Get user factory
+   */
+  public static get factory() {
+    return {
+      /**
+       * Create documents based on the given number of records
+       */
+      create: async (
+        size: number,
+        recordCallback: FactoryCreatorCallback = this.documentFactory,
+      ) => {
+        for (let i = 0; i < size; i++) {
+          await (this as any).create(recordCallback(faker, i));
+        }
+      },
     };
   }
 }

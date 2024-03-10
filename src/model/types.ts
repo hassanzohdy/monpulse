@@ -1,5 +1,6 @@
-import { ObjectId, WithId } from "mongodb";
-import { Model } from "./model";
+import type { Faker } from "@faker-js/faker";
+import type { ObjectId, WithId } from "mongodb";
+import type { Model } from "./model";
 
 /**
  * Primary id type
@@ -10,6 +11,22 @@ export type PrimaryIdType = string | number | ObjectId;
  * Base model to be extended with Child Models
  */
 export type ChildModel<T> = typeof Model & (new () => T);
+
+/**
+ * Factory creator callback
+ */
+export type FactoryCreatorCallback = (faker: Faker, index: number) => Document;
+
+/**
+ * Find or create options
+ */
+export type FindOrCreateOptions = {
+  /**
+   * Merge the filter data with the created data
+   * @default true
+   */
+  merge?: boolean;
+};
 
 /**
  * Model delete strategy

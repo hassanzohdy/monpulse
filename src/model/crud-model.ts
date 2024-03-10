@@ -5,6 +5,7 @@ import {
   ChunkCallback,
   Document,
   Filter,
+  FindOrCreateOptions,
   ModelDeleteStrategy,
   ModelDocument,
   PaginationListing,
@@ -365,13 +366,17 @@ export abstract class CrudModel extends BaseModel {
     this: ChildModel<T>,
     filter: Filter,
     data: Document,
+    { merge = true }: FindOrCreateOptions = {},
   ): Promise<T> {
     filter = await this.prepareFilters(filter);
 
     let model = (await this.first(filter)) as any;
 
     if (!model) {
-      model = this.self(data);
+      model = this.self({
+        ...(merge ? filter : {}),
+        ...data,
+      });
       await model.save();
     }
 
